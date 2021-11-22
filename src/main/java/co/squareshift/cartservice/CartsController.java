@@ -37,6 +37,7 @@ public class CartsController {
 				"  ],\n" +
 				"  \"total\": \"10.97\"\n" +
 				"}";
+		
 	}
 
 	private void gatherItemTotals() {
