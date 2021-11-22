@@ -2,7 +2,7 @@ name: ‘eks’
 on:
   pull_request:
     branches:
-      - master
+      - main
   workflow_dispatch:
 jobs:
   eks_deployment:
@@ -20,8 +20,6 @@ jobs:
           sudo apt update
           mvn clean package spring-boot:repackage
       - uses: actions/setup-node@v2
-        with:
-          node-version: ‘14’
       - run: npm install snyk -g # install snyk
       - run: snyk -v
       - run: snyk auth ${{ secrets.snyk_token }} # snyk authentication using GH secrets
