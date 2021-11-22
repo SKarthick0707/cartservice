@@ -1,28 +1,55 @@
-name: 'eks'
-
+name: ‘eks’
 on:
   pull_request:
     branches:
-      - main
+      - master
   workflow_dispatch:
-
 jobs:
-  packer_validate:
+  eks_deployment:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - name:
-        # env:
-        #   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        #   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        #   ssh_private_key_file: ${{ secrets.ssh_private_key_file_hk }}
-        #   PASSWORD_CUDEPAPI: ${{ secrets.PASSWORD_CUDEPAPI }}
-        #   key_pair_name: ${{ secrets.key_pair_name_hk }}
+      - name: checkout code
+        uses: actions/checkout@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Maven build
         run: |
           sudo apt update
-          sudo apt install apt-transport-https ca-certificates curl software-properties-common
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
-          apt-cache policy docker-ce
-          sudo apt install docker-ce
-          docker version
+          mvn clean package spring-boot:repackage
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ‘14’
+      - run: npm install snyk -g # install snyk
+      - run: snyk -v
+      - run: snyk auth ${{ secrets.snyk_token }} # snyk authentication using GH secrets
+              # Generate the HTML report
+      - name: install snyk-to-html
+        run: |
+          # Install the Snyk JSON to HTML Mapper using npm
+               npm install snyk-to-html -g
+          # Convert JSON output from `snyk test --json` into a static HTML
+               snyk test --json | snyk-to-html -o result.html
+               mkdir downloads
+               cp -v /home/runner/work/java-goof/java-goof/*.html /home/runner/work/java-goof/java-goof/downloads
+      # save the HTML in the artifact
+      - name: Use the Upload Artifact GitHub Action
+        uses: actions/upload-artifact@v2
+        with:
+          name: results
+          path: downloads
+      - name: Docker push
+        run: |
+          docker tag cartservice:0.0.1-SNAPSHOT sponmuth/cartservice
+          docker push sponmuth/cartservice
+      - name: EKS deployment
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws eks --region us-east-1 update-kubeconfig --name OpenSourceObservabilityStack
+          kubectl apply -f deployment.yml
+          kubectl apply -f service.yml
+
