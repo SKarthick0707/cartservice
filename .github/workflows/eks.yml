@@ -1,20 +1,19 @@
-name: ‘eks’
-on:
+  name: ‘eks’
+  on:
   pull_request:
     branches:
       - main
   workflow_dispatch:
-name: Main Workflow
-jobs:
-  sonarqube:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          # Disabling shallow clone is recommended for improving relevancy of reporting
-          fetch-depth: 0
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@master
-        env:
-          SONAR_TOKEN: "721f36c18302e3ad420d8ff5de13561e9eae4be3"
-          SONAR_HOST_URL: "http://18.212.15.49:9000"
+  jobs:
+    sonarqube:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+          with:
+            # Disabling shallow clone is recommended for improving relevancy of reporting
+            fetch-depth: 0
+        - name: SonarQube Scan
+          uses: sonarsource/sonarqube-scan-action@master
+          env:
+            SONAR_TOKEN: "721f36c18302e3ad420d8ff5de13561e9eae4be3"
+            SONAR_HOST_URL: "http://18.212.15.49:9000"
