@@ -20,6 +20,14 @@
             sudo apt update
             mvn clean package spring-boot:repackage
         - uses: actions/setup-node@v2
+        # Generates a BoM and uploads it to OWASP Dependency Track
+        - name: Generates BoM and upload to OWASP DTrack
+          id: riskscoreFromDT
+          uses: Quobis/action-owasp-dependecy-track-check@main
+          with:
+            url: "http://54.208.64.159:8080"
+            key: "kCJ6ebWQpX9Y7NKGFT9dtVvCHMy0lkbU"
+            language: "java"
         - name: Official SonarQube Scan
           uses: sonarsource/sonarqube-scan-action@master
           env:
