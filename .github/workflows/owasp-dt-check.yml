@@ -23,12 +23,19 @@
 
         # Generates a BoM and uploads it to OWASP Dependency Track
         - name: Generates BoM and upload to OWASP DTrack
-          id: riskscoreFromDT
-          uses:  Quobis/action-owasp-dependecy-track-check@main
+#          id: riskscoreFromDT
+#          uses:  Quobis/action-owasp-dependecy-track-check@main
+#          with:
+#            url: "http://54.208.64.159:8080"
+#            key: "721f36c18302e3ad420d8ff5de13561e9eae4be3"
+#            language: "java"
+
+          uses: DependencyTrack/gh-upload-sbom@v1.0.0
           with:
-            url: "http://54.208.64.159:8080"
-            key: "721f36c18302e3ad420d8ff5de13561e9eae4be3"
-            language: "java"
+            serverhostname: "http://54.208.64.159:8080"
+            apikey: "721f36c18302e3ad420d8ff5de13561e9eae4be3"
+            projectname: "cartservice"
+            projectversion: 'main'
 
         # Show the risk score output
 #        - name: Get the output time
