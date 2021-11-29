@@ -1,10 +1,13 @@
 package co.squareshift.cartservice;
 
+import java.io.IOException;
+import java.io.InputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
+import co.squareshift.cartservice.vulnerability.VulnerabilityTest;
 
 @RestController
 public class CartsController {
@@ -52,6 +55,18 @@ public class CartsController {
 	private void calculateCartTotals() throws InterruptedException {
 		logger.info("Calculating cart totals");
 		Thread.sleep(8);
+	}
+
+	@RequestMapping("/cart/security-test")
+	public void vulnerabilityTest() throws Exception {
+		VulnerabilityTest vulnerabilityTest = new VulnerabilityTest();
+		vulnerabilityTest.inputStream(new InputStream() {
+			@Override
+			public int read() throws IOException {
+				return 0;
+			}
+		});
+		vulnerabilityTest.selectExample("");
 	}
 
 }
